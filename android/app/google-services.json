@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "382320928917",
+    "project_id": "notificationapp-1445a",
+    "storage_bucket": "notificationapp-1445a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:382320928917:android:ac35f1b01055cac831939c",
+        "android_client_info": {
+          "package_name": "com.adnan.notiffication_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "382320928917-rskj5i6rh6vfidjkt93o4lk4u1tricao.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAW7aAvUEXe0AE5u0MY_LDhHY8F2iK920c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "382320928917-rskj5i6rh6vfidjkt93o4lk4u1tricao.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
