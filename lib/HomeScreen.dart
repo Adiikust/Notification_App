@@ -14,31 +14,32 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   bool isLoading = false;
   final TextEditingController _search = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final fireStore = FirebaseFirestore.instance.collection('users').snapshots();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   WidgetsBinding.instance.addObserver(this);
-  //   setStatus("Online");
-  // }
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    setStatus("Online");
+  }
 
-  // void setStatus(String status) async {
-  //   await _firestore.collection('users').doc(_auth.currentUser!.uid).update({
-  //     "status": status,
-  //   });
-  // }
-  //
-  // @override
-  // void didChangeAppLifecycleState(AppLifecycleState state) {
-  //   if (state == AppLifecycleState.resumed) {
-  //     // online
-  //     setStatus("Online");
-  //   } else {
-  //     // offline
-  //     setStatus("Offline");
-  //   }
-  // }
+  void setStatus(String status) async {
+    await _firestore.collection('users').doc(_auth.currentUser!.uid).update({
+      "status": status,
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // online
+      setStatus("Online");
+    } else {
+      // offline
+      setStatus("Offline");
+    }
+  }
 
   String chatRoomId(String user1, String user2) {
     if (user1[0].toLowerCase().codeUnits[0] >
@@ -153,10 +154,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         trailing: const Icon(Icons.chat, color: Colors.black),
                       )
                     : StreamBuilder<QuerySnapshot>(
-                        stream: _firestore.collection('users').snapshots(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
+                        stream: fireStore,
+                        builder: (BuildContext context,
+                            AsyncSnapshot<QuerySnapshot> snapshot) {
+                          if (!snapshot.hasData) {
                             return const CircularProgressIndicator();
                           } else {
                             if (snapshot.hasData) {
@@ -165,40 +166,45 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                   .map((doc) =>
                                       doc.data() as Map<String, dynamic>)
                                   .toList();
-                              return ListView.builder(
-                                itemCount: usersList.length,
-                                itemBuilder: (context, index) {
-                                  Map<String, dynamic> user = usersList[index];
-                                  return ListTile(
-                                    onTap: () {
-                                      // String roomId = chatRoomId(
-                                      //     _auth.currentUser!.displayName!,
-                                      //     userMap!['name']);
-                                      ///
-                                      // Navigator.of(context).push(
-                                      //   MaterialPageRoute(
-                                      //     builder: (_) => ChatRoom(
-                                      //       chatRoomId: roomId,
-                                      //       userMap: userMap!,
-                                      //     ),
-                                      //   ),
-                                      // );
-                                    },
-                                    leading: const Icon(Icons.account_box,
-                                        color: Colors.black),
-                                    title: Text(
-                                      user["name"].toString(),
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.w500,
+                              print("data list ${usersList.length.toString()}");
+                              return Expanded(
+                                child: ListView.builder(
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: usersList.length,
+                                  itemBuilder: (context, index) {
+                                    return ListTile(
+                                      onTap: () {
+                                        String roomId = chatRoomId(
+                                            _auth.currentUser!.displayName!,
+                                            userMap!['name']);
+
+                                        ///
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) => ChatRoom(
+                                              chatRoomId: roomId,
+                                              userMap: userMap!,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      leading: const Icon(Icons.account_box,
+                                          color: Colors.black),
+                                      title: Text(
+                                        usersList[index]["name"],
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
-                                    ),
-                                    subtitle: Text(userMap!['email']),
-                                    trailing: const Icon(Icons.chat,
-                                        color: Colors.black),
-                                  );
-                                },
+                                      subtitle: Text(usersList[index]["email"]),
+                                      trailing: const Icon(Icons.chat,
+                                          color: Colors.black),
+                                    );
+                                  },
+                                ),
                               );
                             } else {
                               return const Text('No users found.');
